@@ -22,6 +22,12 @@ implements ActionListener {
     private int start_angle = 0;
     private int shape;
 
+    /**
+    * <p>Creates panel instance<p>
+    * <p>For example: new TitlesPanel(11)<p>
+    * @param _shape shape style used to create shape from ShapeFactory
+    * @see ShapeFactory
+    */
     public TitlesPanel(int _shape) {
         this.shape = _shape;
         this.animation = new Timer(50, this);
@@ -74,4 +80,3 @@ implements ActionListener {
         this.doDrawing(g);
     }
 }
-

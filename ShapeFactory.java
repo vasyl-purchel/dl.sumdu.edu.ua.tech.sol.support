@@ -16,6 +16,25 @@ public class ShapeFactory {
     public int width = 25;
     public int height = 25;
 
+    /**
+    * <p>Creates shape instance<p>
+    * <p>For example: new ShapeFactory(11)<p>
+    * Type of shape consists of two digits for shape and style
+    * Shapes: <br/>
+    *   1 - hexagon<br/>
+    *   3 - 5 point star<br/>
+    *   5 - rectangle<br/>
+    *   7 - triangle<br/>
+    *   9 - pacman<br/>
+    * Styles:<br/>
+    *   1 - black 3px borders<br/>
+    *   3 - defaults (black 3px borders)<br/>
+    *   4 - black 7px borders<br/>
+    *   7 - gradient white to gray 3px borders<br/>
+    *   8 - red 3px borders<br/>
+    * @param shape_type type of shape that consists of two digits
+    * @throws Error
+    */
     public ShapeFactory(int shape_type) {
         switch (shape_type / 10) {
             case 1: {
@@ -92,4 +111,3 @@ public class ShapeFactory {
         return path;
     }
 }
-
