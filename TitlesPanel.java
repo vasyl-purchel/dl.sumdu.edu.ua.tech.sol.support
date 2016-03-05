@@ -1,12 +1,8 @@
-import java.awt.BasicStroke;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.Paint;
 import java.awt.RenderingHints;
-import java.awt.Shape;
-import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
@@ -20,10 +16,17 @@ implements ActionListener {
     private Timer animation;
     private boolean is_done = true;
     private int start_angle = 0;
-    private int shape;
+    private AbstractShape shape;
 
+    /**
+    * <p>Creates panel instance<p>
+    * <p>For example: new TitlesPanel(11)<p>
+    * 
+    * @param _shape shape style used to create shape from ShapeFactory
+    * @see ShapeFactory
+    */
     public TitlesPanel(int _shape) {
-        this.shape = _shape;
+        this.shape = ShapeFactory.createShapeOldStyle(_shape);
         this.animation = new Timer(50, this);
         this.animation.setInitialDelay(50);
         this.animation.start();
@@ -44,26 +47,26 @@ implements ActionListener {
         Insets insets = this.getInsets();
         int w = size.width - insets.left - insets.right;
         int h = size.height - insets.top - insets.bottom;
-        ShapeFactory shape = new ShapeFactory(this.shape);
-        this.g2d.setStroke(shape.stroke);
-        this.g2d.setPaint(shape.paint);
+        AbstractShape shape = this.shape;
+        this.g2d.setStroke(shape.getStroke());
+        this.g2d.setPaint(shape.getPaint());
         double angle = this.start_angle++;
         if (this.start_angle > 360) {
             this.start_angle = 0;
         }
-        double dr = 90.0 / ((double)w / ((double)shape.width * 1.5));
-        int j = shape.height;
+        double dr = 90.0 / ((double)w / ((double)shape.getWidth() * 1.5));
+        int j = shape.getHeight();
         while (j < h) {
-            int i = shape.width;
+            int i = shape.getWidth();
             while (i < w) {
                 angle = angle > 360.0 ? 0.0 : angle + dr;
                 AffineTransform transform = new AffineTransform();
                 transform.translate(i, j);
                 transform.rotate(Math.toRadians(angle));
-                this.g2d.draw(transform.createTransformedShape(shape.shape));
-                i = (int)((double)i + (double)shape.width * 1.5);
+                this.g2d.draw(transform.createTransformedShape(shape.getShape()));
+                i = (int)((double)i + (double)shape.getWidth() * 1.5);
             }
-            j = (int)((double)j + (double)shape.height * 1.5);
+            j = (int)((double)j + (double)shape.getHeight() * 1.5);
         }
         this.is_done = true;
     }
@@ -74,4 +77,3 @@ implements ActionListener {
         this.doDrawing(g);
     }
 }
-

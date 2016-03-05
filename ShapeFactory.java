@@ -2,94 +2,125 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Paint;
-import java.awt.Point;
-import java.awt.Shape;
-import java.awt.geom.Arc2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 
+/**
+ * Factory to create shapes
+ */
 public class ShapeFactory {
-    public Shape shape;
-    public BasicStroke stroke = new BasicStroke(3.0f);
-    public Paint paint;
-    public int width = 25;
-    public int height = 25;
 
-    public ShapeFactory(int shape_type) {
-        switch (shape_type / 10) {
-            case 1: {
-                this.shape = ShapeFactory.createStar(3, new Point(0, 0), (double)this.width / 2.0, (double)this.width / 2.0);
-                break;
-            }
-            case 3: {
-                this.shape = ShapeFactory.createStar(5, new Point(0, 0), (double)this.width / 2.0, (double)this.width / 4.0);
-                break;
-            }
-            case 5: {
-                this.shape = new Rectangle2D.Double((double)(- this.width) / 2.0, (double)(- this.height) / 2.0, this.width, this.height);
-                break;
-            }
-            case 7: {
-                GeneralPath path = new GeneralPath();
-                double tmp_height = Math.sqrt(2.0) / 2.0 * (double)this.height;
-                path.moveTo((double)((- this.width) / 2), - tmp_height);
-                path.lineTo(0.0, - tmp_height);
-                path.lineTo((double)(this.width / 2), tmp_height);
-                path.closePath();
-                this.shape = path;
-                break;
-            }
-            case 9: {
-                this.shape = new Arc2D.Double((double)(- this.width) / 2.0, (double)(- this.height) / 2.0, this.width, this.height, 30.0, 300.0, 2);
-                break;
-            }
-            default: {
-                throw new Error("type is nusupported");
-            }
-        }
-        switch (shape_type % 10) {
-            case 1: {
-                this.stroke = new BasicStroke(3.0f);
-                break;
-            }
-            case 3: {
-                break;
-            }
-            case 4: {
-                this.stroke = new BasicStroke(7.0f);
-                break;
-            }
-            case 7: {
-                this.paint = new GradientPaint(- this.width, - this.height, Color.white, this.width, this.height, Color.gray, true);
-                break;
-            }
-            case 8: {
-                this.paint = Color.red;
-                break;
-            }
-            default: {
-                throw new Error("type is nusupported");
-            }
-        }
-    }
+	/**
+	 * Shape types enumeration
+	 */
+	public enum ShapeType {
+		NONE(0), HEXAGON(1), STAR(3), RECTANGLE(5), TRIANGLE(7), PACMAN(9);
+		private int value;
+		
+		private ShapeType(int value){
+			this.value = value;
+		}
+		
+		/**
+		 * Convert integer value to ShapeType
+		 * @param value
+		 * @return ShapeType, ShapeType.NONE if unsupported shape type requested
+		 */
+		public static ShapeType fromInt(int value){
+			ShapeType[] types = ShapeType.values();
+			for(int i = 0; i < types.length; i++){
+				if (types[i].value == value)
+					return types[i];
+			}
+			return NONE;
+		}
+	}
 
-    private static Shape createStar(int arms, Point center, double rOuter, double rInner) {
-        double angle = 3.141592653589793 / (double)arms;
-        GeneralPath path = new GeneralPath();
-        int i = 0;
-        while (i < 2 * arms) {
-            double r = (i & 1) == 0 ? rOuter : rInner;
-            Point2D.Double p = new Point2D.Double((double)center.x + Math.cos((double)i * angle) * r, (double)center.y + Math.sin((double)i * angle) * r);
-            if (i == 0) {
-                path.moveTo(p.getX(), p.getY());
-            } else {
-                path.lineTo(p.getX(), p.getY());
-            }
-            ++i;
-        }
-        path.closePath();
-        return path;
-    }
+	/**
+	 * Shape styles enumeration
+	 */
+	public enum ShapeStyle {
+		NONE(0), THIN(1), DEFAULT(3), BOLD(4), GRADIENT(7), RED(8);
+		private int value;
+		
+		private ShapeStyle(int value){
+			this.value = value;
+		}
+		
+		/**
+		 * Convert integer value to ShapeStyle
+		 * @param value
+		 * @return ShapeStyle, ShapeStyle.NONE if unsupported shape style requested
+		 */
+		public static ShapeStyle fromInt(int value){
+			ShapeStyle[] styles = ShapeStyle.values();
+			for(int i = 0; i < styles.length; i++){
+				if (styles[i].value == value)
+					return styles[i];
+			}
+			return NONE;
+		}
+	}
+
+	/**
+	 * Create new shape with specific type and style
+	 * 
+	 * @param shapeType
+	 * @param shapeStyle
+	 * @return AbstractShape instance of requested shape type and style
+	 * @throws Error if type or style are unsupported
+	 */
+	public static AbstractShape createShape(ShapeType shapeType, ShapeStyle shapeStyle) {
+		int width = 25;
+		int height = 25;
+		Paint paint = Color.black;
+		BasicStroke stroke = new BasicStroke(3.0f);
+		switch (shapeStyle){
+			case THIN:
+				stroke = new BasicStroke(3.0f);
+				break;
+			case DEFAULT:
+				break;
+			case BOLD:
+				stroke = new BasicStroke(7.0f);
+				break;
+			case GRADIENT:
+				paint = new GradientPaint(- width, - height, Color.white, width, height, Color.gray, true);
+				break;
+			case RED:
+				paint = Color.red;
+				break;
+			default:
+				throw new Error("style is unsupported");
+		}
+		switch (shapeType){
+			case HEXAGON: return new HexagonShape(width, height, paint, stroke);
+			case STAR: return new StarShape(width, height, paint, stroke);
+			case RECTANGLE: return new RectangleShape(width, height, paint, stroke);
+			case TRIANGLE: return new TriangleShape(width, height, paint, stroke);
+			case PACMAN: return new PacmanShape(width, height, paint, stroke);
+			default: throw new Error("type is unsupported");
+		}
+	}
+	
+    /**
+    * <p>Backward compatibility support to create shapes from int type<p>
+    * <p>For example: new ShapeFactory.createShapeOldStyle(11)<p>
+    * Type of shape consists of two digits for shape and style
+    * Shapes: <br/>
+    *   1 - hexagon<br/>
+    *   3 - 5 point star<br/>
+    *   5 - rectangle<br/>
+    *   7 - triangle<br/>
+    *   9 - pacman<br/>
+    * Styles:<br/>
+    *   1 - black 3px borders<br/>
+    *   3 - defaults (black 3px borders)<br/>
+    *   4 - black 7px borders<br/>
+    *   7 - gradient white to gray 3px borders<br/>
+    *   8 - red 3px borders<br/>
+    * @param shape_type type of shape that consists of two digits
+    * @throws Error
+    */
+	public static AbstractShape createShapeOldStyle(int shapeType){
+		return createShape(ShapeType.fromInt(shapeType / 10), ShapeStyle.fromInt(shapeType % 10));
+	}
 }
-
